@@ -124,7 +124,7 @@
 
 ## 📄 ЛИЦЕНЗИОННОЕ СОГЛАШЕНИЕ (Лицензия)
 
-**Автор:** [@neiro777](https://github.com/neiro777)  
+**Автор:** [SashaMaencraft](https://github.com/SashaMaencraft)  
 **Дата создания:** 2025–2026  
 **Версия лицензии:** 1.0
 
@@ -147,7 +147,7 @@
 ## 🧑‍💻 АВТОР
 
 **Никнейм:** neiro777  
-**GitHub:** [github.com/neiro777](https://github.com/neiro777)  
+**GitHub:** [github.com/SashaMaencraft](https://github.com/SashaMaencraft)  
 **Стек:** HTML, CSS, JavaScript, адаптивная вёрстка, игровая логика  
 
 ---

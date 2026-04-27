@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>КРИК-ДРАЙВ | РОЖДЕНИЕ ЗЕМЛИ</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(ellipse at 30% 40%, #0a0f2a, #030518);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Poppins', system-ui;
+            padding: 15px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(2px 2px at 15% 30%, #fff, rgba(0,0,0,0)),
+                              radial-gradient(2px 2px at 75% 60%, #ffdd88, rgba(0,0,0,0)),
+                              radial-gradient(1px 1px at 95% 20%, #fff, rgba(0,0,0,0)),
+                              radial-gradient(3px 2px at 45% 85%, #ffaaff, rgba(0,0,0,0));
+            background-repeat: no-repeat;
+            background-size: 200px 200px, 300px 300px, 150px 150px, 250px 250px;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        body.boost-active {
+            box-shadow: inset 0 0 50px rgba(255, 0, 0, 0.6), 0 0 30px #ff0000;
+            transition: 0.1s;
+        }
+
+        .game-wrapper {
+            position: relative;
+            max-width: 1300px;
+            width: 100%;
+        }
+
+        .profile-icon {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #ffaa44, #ff6644);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+            border: 2px solid #ffdd99;
+            box-shadow: 0 0 15px rgba(255,170,0,0.6);
+            z-index: 100;
+            transition: 0.1s;
+        }
+        .profile-icon:active { transform: scale(0.94); }
+
+        .profile-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: rgba(10, 5, 25, 0.98);
+            backdrop-filter: blur(20px);
+            border: 2px solid #ffaa44;
+            border-radius: 40px;
+            padding: 20px 25px;
+            width: 300px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            text-align: center;
+        }
+        .profile-modal.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .profile-modal .avatar-big {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #ffaa44, #ff6644);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 12px;
+            border: 2px solid gold;
+        }
+        .profile-modal h3 { color: #ffdd99; margin-bottom: 12px; font-size: 1.2rem; }
+        .profile-modal .stat-line {
+            display: flex;
+            justify-content: space-between;
+            background: #1a122e;
+            border-radius: 30px;
+            padding: 6px 12px;
+            margin: 6px 0;
+            color: #ffeedd;
+            font-size: 0.85rem;
+        }
+        .profile-modal .close-modal {
+            background: #882233;
+            border: none;
+            border-radius: 40px;
+            padding: 6px 18px;
+            margin-top: 12px;
+            color: white;
+            cursor: pointer;
+        }
+        .version-badge {
+            background: #2a1a3a;
+            border-radius: 30px;
+            padding: 5px 10px;
+            margin-top: 10px;
+            font-size: 0.7rem;
+            color: #ffaa88;
+            text-align: center;
+        }
+
+        .game {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 25px;
+            background: rgba(10, 5, 30, 0.75);
+            backdrop-filter: blur(12px);
+            border-radius: 55px;
+            padding: 25px;
+            border: 1px solid #aa77ff;
+            z-index: 2;
+        }
+
+        .left-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        .planet-btn {
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.07s linear;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            font-family: 'Segoe UI', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+            text-align: center;
+            flex-direction: column;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            border: 3px solid #ffdd88;
+            box-shadow: 0 0 25px rgba(255, 220, 100, 0.5);
+        }
+        .planet-btn span {
+            font-size: 0.9rem;
+            font-family: 'Poppins', monospace;
+            color: #ffeedd;
+            text-shadow: 0 0 5px #000;
+            background: rgba(0,0,0,0.5);
+            padding: 4px 12px;
+            border-radius: 40px;
+        }
+        .planet-btn:active { transform: scale(0.94); }
+        .planet-btn.disabled { opacity: 0.5; filter: grayscale(0.5); cursor: not-allowed; }
+
+        .battery-deck {
+            background: #15102be6;
+            border-radius: 45px;
+            padding: 15px 18px;
+            width: 100%;
+            border: 1px solid #c58aff;
+            text-align: center;
+        }
+        .battery-bar-bg {
+            background: #1e1730;
+            border-radius: 35px;
+            height: 24px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        .battery-fill {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #c58aff, #e6aaff);
+            border-radius: 35px;
+            transition: width 0.1s;
+        }
+        .battery-num { color: #e7c6ff; font-weight: bold; font-size: 0.9rem; }
+
+        .right-stuff {
+            background: #0d0820cc;
+            border-radius: 50px;
+            padding: 20px 18px;
+            border-right: 4px solid #bd7eff;
+        }
+
+        .wallet {
+            background: #00000099;
+            border-radius: 50px;
+            text-align: center;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 1px solid #ffcc66;
+        }
+        .cry-label { font-size: 0.9rem; color: #ffdd99; }
+        .cry-digits {
+            font-size: 2.8rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ffffaa, #ffcc44);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .cry-symbol { font-size: 1.8rem; display: inline-block; margin-right: 5px; color: #ffdd88; }
+
+        .planets-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+        .planet-badge {
+            background: #1f1935;
+            border-radius: 35px;
+            padding: 5px 12px;
+            font-size: 0.7rem;
+            color: #aa99dd;
+            border-left: 2px solid #5a3e8c;
+        }
+        .planet-badge.unlocked { background: #5a2e8c; color: #fff2c9; border-left-color: gold; }
+        .planet-badge.current { background: #8b5e3c; border-left-color: #ffaa44; box-shadow: 0 0 6px gold; }
+
+        .boost-panel {
+            background: #2a1a3a;
+            border-radius: 45px;
+            padding: 12px;
+            margin: 10px 0;
+            text-align: center;
+            border: 1px solid #ff6688;
+        }
+        .boost-timer { font-size: 1rem; font-weight: bold; color: #ffaa88; }
+        .boost-btn {
+            background: #ff5577;
+            border: none;
+            border-radius: 40px;
+            padding: 8px 20px;
+            margin-top: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .regen-panel {
+            background: #1a2a3a;
+            border-radius: 45px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .regen-panel div { font-size: 0.8rem; color: #ffcc88; }
+        .regen-upgrade {
+            background: #3377aa;
+            border: none;
+            border-radius: 35px;
+            padding: 5px 12px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .shop-catalog {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 12px 0;
+            max-height: 240px;
+            overflow-y: auto;
+        }
+        .shop-card {
+            background: #1a122edd;
+            border-radius: 40px;
+            padding: 6px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .item-title { color: #ffe0b5; font-size: 0.75rem; }
+        .purchase-btn {
+            background: #bc6eff;
+            border: none;
+            border-radius: 50px;
+            padding: 4px 12px;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+        .purchase-btn.bought { background: #446644; cursor: default; opacity: 0.6; }
+
+        .reset-btn {
+            background: #882233;
+            border: none;
+            border-radius: 40px;
+            padding: 10px;
+            margin-top: 10px;
+            color: white;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .message-area {
+            background: #03000ccc;
+            border-radius: 35px;
+            padding: 8px;
+            text-align: center;
+            color: #dbbaff;
+            font-size: 0.7rem;
+            margin-top: 10px;
+        }
+        .requirements {
+            background: #1a1030;
+            border-radius: 35px;
+            padding: 8px;
+            margin: 10px 0;
+            font-size: 0.7rem;
+            text-align: center;
+            color: #ffcc88;
+        }
+        .bonus-panel {
+            background: #2a1a2a;
+            border-radius: 35px;
+            padding: 8px;
+            margin-top: 8px;
+            font-size: 0.65rem;
+            text-align: center;
+            color: #ddbbff;
+        }
+        .custom-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(15px);
+            border: 2px solid #ffaa44;
+            border-radius: 50px;
+            padding: 12px 24px;
+            color: #ffffaa;
+            font-size: 1.3rem;
+            font-weight: bold;
+            font-family: 'Impact', monospace;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+        .custom-toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .game-wrapper { max-width: 100%; }
+            .profile-icon { top: -8px; right: -8px; width: 48px; height: 48px; font-size: 1.8rem; }
+            .game { grid-template-columns: 1fr; gap: 18px; padding: 18px; border-radius: 40px; }
+            .left-area { order: 1; gap: 18px; }
+            .planet-btn { width: 200px; height: 200px; font-size: 5.5rem; }
+            .planet-btn span { font-size: 1rem; }
+            .battery-deck { padding: 12px; }
+            .battery-bar-bg { height: 20px; }
+            .right-stuff { order: 2; padding: 16px; }
+            .cry-digits { font-size: 2.2rem; }
+            .custom-toast { font-size: 1rem; padding: 8px 16px; white-space: nowrap; }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .game { grid-template-columns: 240px 1fr; gap: 20px; padding: 20px; }
+            .planet-btn { width: 150px; height: 150px; font-size: 4.5rem; }
+            .cry-digits { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="game-wrapper">
+    <div class="profile-icon" id="profileIcon">💫</div>
+
+    <div class="game">
+        <div class="left-area">
+            <div class="planet-btn" id="cryBtn">💫<span>Рождение</span></div>
+            <div class="battery-deck">
+                <div class="battery-num">⚡ ЗАРЯД ⚡</div>
+                <div class="battery-bar-bg"><div class="battery-fill" id="batteryFill"></div></div>
+                <div class="battery-num" id="batteryValue">100 / 100</div>
+                <div style="font-size:0.7rem; color:#bbaaff;" id="regenInfo">✨ 1 за 2 сек</div>
+            </div>
+        </div>
+
+        <div class="right-stuff">
+            <div class="wallet">
+                <div class="cry-label">💰 ТВОИ КОЙНЫ</div>
+                <div>
+                    <span class="cry-symbol">©</span>
+                    <span class="cry-digits" id="cryAmount">0</span>
+                </div>
+            </div>
+
+            <div class="planets-row">
+                <div class="planet-badge" id="planetBirth">💫 Рождение</div>
+                <div class="planet-badge" id="planetEarth">🌍 Земля</div>
+                <div class="planet-badge" id="planetMoon">🌙 Луна</div>
+                <div class="planet-badge" id="planetMars">🔴 Марс</div>
+                <div class="planet-badge" id="planetSun">☀️ Солнце</div>
+                <div class="planet-badge" id="planetStar">⭐ Звезда</div>
+            </div>
+
+            <div class="bonus-panel" id="bonusPanel"></div>
+
+            <div class="boost-panel">
+                <div class="boost-timer" id="boostTimer">⚡ Ускорение НЕ активно</div>
+                <button class="boost-btn" id="buyBoostBtn">💨 КУПИТЬ (200)</button>
+            </div>
+
+            <div class="regen-panel">
+                <div>🔋 УЛУЧШЕНИЕ РЕГЕНА</div>
+                <button class="regen-upgrade" id="upgradeRegen1">Ур.1 (1/сек) 800</button>
+                <button class="regen-upgrade" id="upgradeRegen2">Ур.2 (2/сек) 2500</button>
+                <button class="regen-upgrade" id="upgradeRegen3">Ур.3 (4/сек) 6000</button>
+            </div>
+
+            <div class="requirements" id="reqBox">📋 Требования</div>
+            <div class="shop-catalog" id="shopList"></div>
+            <button class="reset-btn" id="resetBtn">🔄 ПОЛНЫЙ СБРОС</button>
+            <div class="message-area" id="msgBox">💫 НАКОПИ 500 CRY И КУПИ ЗЕМЛЮ!</div>
+        </div>
+    </div>
+</div>
+
+<div class="profile-modal" id="profileModal">
+    <div class="avatar-big" id="modalAvatar">💫</div>
+    <h3>КРИК-ПИЛОТ</h3>
+    <div class="stat-line"><span>🌟 Уровень</span><span id="modalLevel">0</span></div>
+    <div class="stat-line"><span>📊 Всего кликов</span><span id="modalClicks">0</span></div>
+    <div class="stat-line"><span>💰 Всего CRY</span><span id="modalTotalCry">0</span></div>
+    <div class="stat-line"><span>💫 Рождение</span><span id="modalBirth">✅</span></div>
+    <div class="stat-line"><span>🌍 Земля</span><span id="modalEarth">❌</span></div>
+    <div class="stat-line"><span>🌙 Луна</span><span id="modalMoon">❌</span></div>
+    <div class="stat-line"><span>🔴 Марс</span><span id="modalMars">❌</span></div>
+    <div class="stat-line"><span>☀️ Солнце</span><span id="modalSun">❌</span></div>
+    <div class="stat-line"><span>⭐ Звезда</span><span id="modalStar">❌</span></div>
+    <div class="version-badge">⚡ ВЕРСИЯ ИГРЫ: v1.5.0</div>
+    <button class="close-modal" id="closeModal">ЗАКРЫТЬ</button>
+</div>
+
+<div id="customToast" class="custom-toast"></div>
+
+<script>
+    function showToast(msg, isError = false) {
+        const toast = document.getElementById('customToast');
+        toast.textContent = msg;
+        toast.style.borderColor = isError ? '#ff4444' : '#ffaa44';
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 1200);
+    }
+
+    // ============= ВСЕ ПЕРЕМЕННЫЕ =============
+    let cry = BigInt(0);
+    let totalCryEarned = BigInt(0);
+    let battery = 100;
+    let maxBattery = 100;
+    let totalClicks = 0;
+
+    let regenLevel = 0;
+    let regenAmount = () => [0.5,1,2,4][regenLevel];
+
+    let boughtTuning = false;
+    let boughtLube = false;
+    let boughtInfinite = false;
+    let boughtCrystal = false;
+    let boughtMega = false;
+    let autoClicker = false;
+    let critUpgrade = false;
+
+    // ЛОГИКА ПЛАНЕТ (правильная)
+    // 0 = Рождение (нужно купить Землю за 500)
+    // 1 = Земля (открывается после покупки)
+    // 2 = Луна (открывается после покупки Плакса + Смазка)
+    // 3 = Марс (открывается после покупки Вой-Вольт + Кристалл)
+    // 4 = Солнце (открывается после покупки Мега-батарея)
+    // 5 = Звезда (финал)
+    let currentPlanet = 0;
+    let earthBought = false;
+    let moonUnlocked = false;
+    let marsUnlocked = false;
+    let sunUnlocked = false;
+    let starUnlocked = false;
+
+    let infiniteMode = false, infiniteLeft = 0, infiniteCooldown = false, crystalPassive = false;
+    let boostActive = false, boostEndTime = 0, boostMultiplier = 3, boostCount = 0, boostInterval = null;
+    let autoClickerInterval = null, crystalInterval = null, regenInterval = null, saveInterval = null;
+
+    let boostPrice = () => boostCount === 0 ? 200 : (boostCount === 1 ? 500 : 1200);
+
+    const planetEmojis = ['💫', '🌍', '🌙', '🔴', '☀️', '⭐'];
+    const planetNames = ['Рождение', 'Земля', 'Луна', 'Марс', 'Солнце', 'Звезда'];
+
+    // DOM
+    const crySpan = document.getElementById('cryAmount');
+    const cryBtn = document.getElementById('cryBtn');
+    const batteryFill = document.getElementById('batteryFill');
+    const batteryValueSpan = document.getElementById('batteryValue');
+    const regenInfoSpan = document.getElementById('regenInfo');
+    const shopList = document.getElementById('shopList');
+    const reqBox = document.getElementById('reqBox');
+    const boostTimerDiv = document.getElementById('boostTimer');
+    const buyBoostBtn = document.getElementById('buyBoostBtn');
+    const bonusPanel = document.getElementById('bonusPanel');
+
+    const profileIcon = document.getElementById('profileIcon');
+    const profileModal = document.getElementById('profileModal');
+    const closeModalBtn = document.getElementById('closeModal');
+    const modalAvatar = document.getElementById('modalAvatar');
+    const modalLevel = document.getElementById('modalLevel');
+    const modalClicks = document.getElementById('modalClicks');
+    const modalTotalCry = document.getElementById('modalTotalCry');
+    const modalBirth = document.getElementById('modalBirth');
+    const modalEarth = document.getElementById('modalEarth');
+    const modalMoon = document.getElementById('modalMoon');
+    const modalMars = document.getElementById('modalMars');
+    const modalSun = document.getElementById('modalSun');
+    const modalStar = document.getElementById('modalStar');
+
+    // РАСЧЁТ УРОВНЯ (0-20)
+    function calculateLevel() {
+        let planetBonus = 0;
+        if(earthBought) planetBonus = 1;
+        if(moonUnlocked) planetBonus = 2;
+        if(marsUnlocked) planetBonus = 3;
+        if(sunUnlocked) planetBonus = 4;
+        if(starUnlocked) planetBonus = 5;
+        let clickLevel = Math.floor(totalClicks / 100);
+        let level = planetBonus + clickLevel;
+        return Math.min(20, level);
+    }
+
+    function updateProfileModal() {
+        let level = calculateLevel();
+        const avatars = ['💫', '🌱', '🌍', '🌙', '🔴', '☀️', '⭐', '🚀', '👑'];
+        let avatarIndex = Math.min(avatars.length-1, Math.floor(level/2.5));
+        modalAvatar.innerText = avatars[avatarIndex];
+        modalLevel.innerText = level;
+        modalClicks.innerText = totalClicks.toLocaleString();
+        modalTotalCry.innerText = totalCryEarned.toString();
+        modalBirth.innerText = '✅';
+        modalEarth.innerText = earthBought ? '✅' : '❌';
+        modalMoon.innerText = moonUnlocked ? '✅' : '❌';
+        modalMars.innerText = marsUnlocked ? '✅' : '❌';
+        modalSun.innerText = sunUnlocked ? '✅' : '❌';
+        modalStar.innerText = starUnlocked ? '✅' : '❌';
+        profileIcon.innerText = avatars[avatarIndex];
+    }
+
+    function updateBonusPanel() {
+        let bonuses = [];
+        if(autoClicker) bonuses.push("🤖 Автокликер");
+        if(critUpgrade) bonuses.push("🎯 Крит");
+        if(boughtTuning) bonuses.push("🎺 Плакса");
+        if(boughtLube) bonuses.push("⚙️ Смазка");
+        if(boughtInfinite) bonuses.push("♾️ Вой-Вольт");
+        if(boughtCrystal) bonuses.push("💎 Кристалл");
+        if(boughtMega) bonuses.push("⭐ Мега");
+        if(regenLevel > 0) bonuses.push(`🔋 Реген ${regenLevel}`);
+        bonusPanel.innerHTML = `✅ АКТИВНО: ${bonuses.length ? bonuses.join(" • ") : "Ничего"}`;
+    }
+
+    function updateRegenInfo() {
+        regenInfoSpan.innerHTML = regenLevel === 0 ? "✨ 1 за 2 сек" : `⚡ ${regenAmount()} за 1 сек`;
+    }
+
+    function updateBoostButton() { buyBoostBtn.innerText = `💨 КУПИТЬ (${boostPrice()})`; }
+
+    function startBoostTimer() {
+        if(boostInterval) clearInterval(boostInterval);
+        boostInterval = setInterval(() => {
+            if(boostActive) {
+                let remaining = Math.max(0, Math.ceil((boostEndTime - Date.now()) / 1000));
+                if(remaining <= 0) {
+                    boostActive = false;
+                    clearInterval(boostInterval);
+                    boostTimerDiv.innerHTML = "⚡ Ускорение НЕ активно";
+                    document.body.classList.remove('boost-active');
+                    showToast("⛔ УСКОРЕНИЕ ЗАКОНЧИЛОСЬ!", true);
+                    updateBoostButton();
+                    updateUI();
+                } else boostTimerDiv.innerHTML = `🔥 x${boostMultiplier} ⏱️ ${remaining} сек`;
+                updateUI();
+            }
+        }, 200);
+    }
+
+    function buyBoost() {
+        let price = boostPrice();
+        if(cry >= BigInt(price)) {
+            cry -= BigInt(price);
+            boostCount++;
+            if(boostActive) {
+                let newEnd = Date.now() + 60000;
+                if(newEnd > boostEndTime) boostEndTime = newEnd;
+                showToast(`⚡ ПРОДЛЕНО на 60 сек!`);
+            } else {
+                boostActive = true;
+                boostEndTime = Date.now() + 60000;
+                document.body.classList.add('boost-active');
+                showToast(`💨 x${boostMultiplier} на 60 сек!`);
+                startBoostTimer();
+            }
+            updateBoostButton();
+            updateUI();
+        } else showToast(`❌ Нужно ${price} CRY`, true);
+    }
+
+    function upgradeRegen(level) {
+        if(regenLevel >= level) { showToast("Уже куплен!", true); return; }
+        let cost = [0,800,2500,6000][level];
+        if(cry >= BigInt(cost)) {
+            cry -= BigInt(cost); regenLevel = level;
+            showToast(`🔋 Реген ур.${level}!`);
+            updateRegenInfo();
+            updateUI();
+        } else showToast(`Нужно ${cost} CRY`, true);
+    }
+
+    function startAutoClicker() {
+        if(autoClickerInterval) clearInterval(autoClickerInterval);
+        autoClickerInterval = setInterval(() => {
+            if(autoClicker) clickCry(true);
+        }, 1000);
+    }
+
+    function startCrystalPassive() {
+        if(crystalInterval) clearInterval(crystalInterval);
+        crystalInterval = setInterval(() => {
+            if(crystalPassive) { cry += BigInt(1); totalCryEarned += BigInt(1); updateUI(); }
+        }, 1000);
+    }
+
+    function startRegen() {
+        if(regenInterval) clearInterval(regenInterval);
+        regenInterval = setInterval(() => {
+            let regen = regenAmount();
+            if(regen > 0) {
+                if(infiniteMode) { if(!infiniteCooldown && infiniteLeft < maxBattery) infiniteLeft = Math.min(infiniteLeft + regen, maxBattery); }
+                else if(battery < maxBattery) battery = Math.min(battery + regen, maxBattery);
+                updateUI();
+            }
+        }, 1000);
+    }
+
+    // ПОКУПКА ЗЕМЛИ (500 CRY)
+    function buyEarth() {
+        if(earthBought) { showToast("Земля уже куплена!", true); return; }
+        if(cry >= BigInt(500)) {
+            cry -= BigInt(500);
+            totalCryEarned += BigInt(500);
+            earthBought = true;
+            currentPlanet = 1;
+            showToast("🌍 ЗЕМЛЯ КУПЛЕНА! ТЕПЕРЬ ТЫ НА ЗЕМЛЕ!");
+            updateUI();
+        } else {
+            showToast("❌ Нужно 500 CRY чтобы купить Землю!", true);
+        }
+    }
+
+    function updateUI() {
+        crySpan.innerText = cry.toString();
+        let currentCharge = infiniteMode ? (infiniteCooldown ? 0 : infiniteLeft) : battery;
+        let percent = (currentCharge / maxBattery) * 100;
+        batteryFill.style.width = `${percent}%`;
+        if(infiniteMode) batteryValueSpan.innerText = infiniteCooldown ? `♾️ ПЕРЕЗАРЯДКА` : `♾️ ${infiniteLeft}/${maxBattery}`;
+        else batteryValueSpan.innerText = `🔋 ${Math.floor(battery)}/${maxBattery}`;
+
+        let canClick = boostActive || (infiniteMode && !infiniteCooldown && infiniteLeft > 0) || (!infiniteMode && battery > 0);
+        if(canClick) cryBtn.classList.remove('disabled');
+        else cryBtn.classList.add('disabled');
+
+        cryBtn.innerHTML = `${planetEmojis[currentPlanet]}<span>${planetNames[currentPlanet]}</span>`;
+
+        const planetIds = ['planetBirth', 'planetEarth', 'planetMoon', 'planetMars', 'planetSun', 'planetStar'];
+        const planetUnlockedStatus = [true, earthBought, moonUnlocked, marsUnlocked, sunUnlocked, starUnlocked];
+        for(let i=0;i<planetIds.length;i++) {
+            let badge = document.getElementById(planetIds[i]);
+            if(badge) {
+                badge.classList.remove('unlocked','current');
+                if(planetUnlockedStatus[i]) badge.classList.add('unlocked');
+                if(currentPlanet === i) badge.classList.add('current');
+            }
+        }
+
+        updateRequirements();
+        renderShop();
+        updateBoostButton();
+        updateBonusPanel();
+        updateProfileModal();
+    }
+
+    function updateRequirements() {
+        // УРОВЕНЬ 0: Рождение
+        if(currentPlanet === 0) {
+            reqBox.innerHTML = `📋 КУПИТЬ ЗЕМЛЮ: нужно 500 CRY (сейчас ${cry.toString()})`;
+        }
+        // УРОВЕНЬ 1: Земля (нужно купить Плакса + Смазка для Луны)
+        else if(currentPlanet === 1) {
+            if(boughtTuning && boughtLube && !moonUnlocked) {
+                moonUnlocked = true;
+                currentPlanet = 2;
+                showToast("🌙 ЛУНА ОТКРЫТА!");
+                updateUI();
+            }
+            reqBox.innerHTML = `📋 ЛУНА: купить Тюнинг Плакса (2900) + Смазка (2100) → ${boughtTuning ? '✅' : '❌'} Плакса, ${boughtLube ? '✅' : '❌'} Смазка`;
+        }
+        // УРОВЕНЬ 2: Луна
+        else if(currentPlanet === 2) {
+            if(boughtInfinite && boughtCrystal && !marsUnlocked) {
+                marsUnlocked = true;
+                currentPlanet = 3;
+                maxBattery += 10;
+                showToast("🔴 МАРС ОТКРЫТ!");
+                updateUI();
+            }
+            reqBox.innerHTML = `📋 МАРС: купить Вой-Вольт (4900) + Кристалл воя (4700) → ${boughtInfinite ? '✅' : '❌'} Вой-Вольт, ${boughtCrystal ? '✅' : '❌'} Кристалл`;
+        }
+        // УРОВЕНЬ 3: Марс
+        else if(currentPlanet === 3) {
+            if(boughtMega && !sunUnlocked) {
+                sunUnlocked = true;
+                currentPlanet = 4;
+                maxBattery += 15;
+                showToast("☀️ СОЛНЦЕ ОТКРЫТО!");
+                updateUI();
+            }
+            reqBox.innerHTML = `📋 СОЛНЦЕ: купить МЕГА-БАТАРЕЮ (15000) → ${boughtMega ? '✅' : '❌'}`;
+        }
+        // УРОВЕНЬ 4: Солнце
+        else if(currentPlanet === 4) {
+            reqBox.innerHTML = `📋 ЗВЕЗДА: пока не открыта... нужно купить Мега-батарею для Солнца`;
+        }
+        // УРОВЕНЬ 5: Звезда (финал)
+        else if(currentPlanet === 5) {
+            reqBox.innerHTML = "⭐ ФИНАЛ! ТЫ ДОСТИГ ЗВЕЗДЫ! ⭐";
+        }
+    }
+
+    function renderShop() {
+        let items = [
+            {name:"🌍 КУПИТЬ ЗЕМЛЮ", price:500, type:"earth", bought:earthBought},
+            {name:"🔋 Малый Рык +35", price:90, type:"batS"},
+            {name:"🔊 Басс +320", price:750, type:"batM"},
+            {name:"🎺 Тюнинг Плакса (+50 CRY)", price:2900, type:"tuning", bought:boughtTuning},
+            {name:"⚙️ Смазка пальцев (+2 CRY)", price:2100, type:"lube", bought:boughtLube},
+            {name:"♾️ Вой-Вольт (бесконечный)", price:4900, type:"infinite", bought:boughtInfinite},
+            {name:"💎 Кристалл воя (+1 CRY/сек)", price:4700, type:"crystal", bought:boughtCrystal},
+            {name:"⭐ МЕГА-БАТАРЕЯ (+1000 заряда)", price:15000, type:"mega", bought:boughtMega},
+            {name:"🤖 АВТОКЛИКЕР (1 клик/сек)", price:5000, type:"autoclick", bought:autoClicker},
+            {name:"🎯 УЛУЧШЕНИЕ КРИТА (шанс x2)", price:3000, type:"crit", bought:critUpgrade}
+        ];
+        shopList.innerHTML = items.map(i => `<div class="shop-card"><span class="item-title">${i.name} ${i.bought ? '✅' : ''}</span>
+            <button class="purchase-btn" data-type="${i.type}" ${i.bought ? 'disabled style="opacity:0.5;"' : ''}>${i.price} ©</button></div>`).join('');
+        document.querySelectorAll('.purchase-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                let t = btn.getAttribute('data-type');
+                if(t === 'earth') buyEarth();
+                if(t === 'batS') buySmall();
+                if(t === 'batM') buyMedium();
+                if(t === 'tuning') buyTuning();
+                if(t === 'lube') buyLube();
+                if(t === 'infinite') buyInfinite();
+                if(t === 'crystal') buyCrystal();
+                if(t === 'mega') buyMega();
+                if(t === 'autoclick') buyAutoClicker();
+                if(t === 'crit') buyCritUpgrade();
+                updateUI();
+            });
+        });
+    }
+
+    function buySmall() { if(cry>=BigInt(90)){ cry-=BigInt(90); totalCryEarned+=BigInt(90); if(infiniteMode) infiniteLeft+=35; else battery=Math.min(battery+35, maxBattery); showToast("+35 заряда");} else showToast("90 CRY", true); updateUI();}
+    function buyMedium(){ if(cry>=BigInt(750)){ cry-=BigInt(750); totalCryEarned+=BigInt(750); if(infiniteMode) infiniteLeft+=320; else battery=Math.min(battery+320, maxBattery); showToast("+320 заряда");} else showToast("750 CRY", true); updateUI();}
+    function buyTuning(){ if(cry>=BigInt(2900) && !boughtTuning){ cry-=BigInt(2900); totalCryEarned+=BigInt(2900); boughtTuning=true; showToast("🎺 Плакса куплен!"); updateUI();} else showToast("2900 CRY", true);}
+    function buyLube(){ if(cry>=BigInt(2100) && !boughtLube){ cry-=BigInt(2100); totalCryEarned+=BigInt(2100); boughtLube=true; showToast("⚙️ Смазка!"); updateUI();} else showToast("2100 CRY", true);}
+    function buyInfinite(){ if(cry>=BigInt(4900) && !boughtInfinite){ cry-=BigInt(4900); totalCryEarned+=BigInt(4900); boughtInfinite=true; infiniteMode=true; infiniteLeft=800; maxBattery=800; showToast("♾️ Вой-Вольт!"); updateUI();} else showToast("4900 CRY", true);}
+    function buyCrystal(){ if(cry>=BigInt(4700) && !boughtCrystal){ cry-=BigInt(4700); totalCryEarned+=BigInt(4700); boughtCrystal=true; crystalPassive=true; startCrystalPassive(); showToast("💎 Кристалл!"); updateUI();} else showToast("4700 CRY", true);}
+    function buyMega(){ if(cry>=BigInt(15000) && !boughtMega){ cry-=BigInt(15000); totalCryEarned+=BigInt(15000); boughtMega=true; if(infiniteMode) infiniteLeft+=1000; else battery=Math.min(battery+1000, maxBattery); showToast("⭐ Мега!"); updateUI();} else showToast("15000 CRY", true);}
+    function buyAutoClicker() { if(autoClicker) { showToast("Уже куплен!", true); return; } if(cry>=BigInt(5000)){ cry-=BigInt(5000); totalCryEarned+=BigInt(5000); autoClicker=true; startAutoClicker(); showToast("🤖 Автокликер!"); updateUI();} else showToast("5000 CRY", true);}
+    function buyCritUpgrade() { if(critUpgrade) { showToast("Уже куплено!", true); return; } if(cry>=BigInt(3000)){ cry-=BigInt(3000); totalCryEarned+=BigInt(3000); critUpgrade=true; showToast("🎯 Крит!"); updateUI();} else showToast("3000 CRY", true);}
+
+    function clickCry(isAuto = false) {
+        let canClick = boostActive || (infiniteMode && !infiniteCooldown && infiniteLeft > 0) || (!infiniteMode && battery > 0);
+        if(!canClick && !isAuto) { showToast("❌ НЕТ ЗАРЯДА!", true); return; }
+        if(!canClick && isAuto) return;
+
+        let gain = boostActive ? boostMultiplier : 1;
+        let msg = "";
+        if(boughtTuning && Math.random()<0.12) { gain += 50; msg = "🎺 ПЛАКСА +50"; }
+        else if(boughtLube && Math.random()<0.2) { gain += 2; msg = "⚙️ СМАЗКА +2"; }
+        else msg = "💥 КРИК!";
+        if(critUpgrade && Math.random()<0.1) { gain *= 2; msg += " ✨ КРИТ x2!"; }
+        
+        cry += BigInt(gain);
+        totalCryEarned += BigInt(gain);
+        totalClicks++;
+        if(!isAuto) showToast(msg);
+        
+        if(!boostActive && !isAuto) {
+            if(infiniteMode && !infiniteCooldown) {
+                infiniteLeft--;
+                if(infiniteLeft <= 0) {
+                    infiniteCooldown = true;
+                    showToast("♾️ Разрядился! 2 мин", true);
+                    setTimeout(() => { infiniteCooldown = false; infiniteLeft = maxBattery; updateUI(); }, 120000);
+                }
+            } else if(!infiniteMode) battery = Math.max(0, battery - 1);
+        }
+        updateUI();
+    }
+
+    function fullReset() {
+        if(confirm("💫 КРИК-СБРОС! ВСЁ УЛЕТАЕТ В ТАРТАРЫ. СНОВА РОЖДЕНИЕ. ТОЧНО?")) {
+            if(autoClickerInterval) clearInterval(autoClickerInterval);
+            if(crystalInterval) clearInterval(crystalInterval);
+            if(boostInterval) clearInterval(boostInterval);
+            if(regenInterval) clearInterval(regenInterval);
+            
+            cry = BigInt(0);
+            totalCryEarned = BigInt(0);
+            battery = 100;
+            maxBattery = 100;
+            totalClicks = 0;
+            regenLevel = 0;
+            boughtTuning = false;
+            boughtLube = false;
+            boughtInfinite = false;
+            boughtCrystal = false;
+            boughtMega = false;
+            autoClicker = false;
+            critUpgrade = false;
+            currentPlanet = 0;
+            earthBought = false;
+            moonUnlocked = false;
+            marsUnlocked = false;
+            sunUnlocked = false;
+            starUnlocked = false;
+            infiniteMode = false;
+            infiniteLeft = 0;
+            infiniteCooldown = false;
+            crystalPassive = false;
+            boostActive = false;
+            boostEndTime = 0;
+            boostCount = 0;
+            
+            startRegen();
+            localStorage.removeItem('cryFinalSave');
+            updateRegenInfo();
+            updateUI();
+            showToast("✅ ВСЁ СБРОШЕНО! НАЧИНАЙ С РОЖДЕНИЯ!");
+        }
+    }
+
+    function saveGame() {
+        let save = { cry: cry.toString(), totalCryEarned: totalCryEarned.toString(), battery, maxBattery, totalClicks, regenLevel, boughtTuning, boughtLube, boughtInfinite, boughtCrystal, boughtMega, autoClicker, critUpgrade, currentPlanet, earthBought, moonUnlocked, marsUnlocked, sunUnlocked, starUnlocked, infiniteMode, infiniteLeft, infiniteCooldown, crystalPassive, boostCount, boostActive, boostEndTime };
+        localStorage.setItem('cryFinalSave', JSON.stringify(save));
+    }
+    
+    function loadGame() {
+        let data = localStorage.getItem('cryFinalSave');
+        if(!data) return;
+        try {
+            let s = JSON.parse(data);
+            cry = BigInt(s.cry); totalCryEarned = BigInt(s.totalCryEarned || '0'); battery = s.battery; maxBattery = s.maxBattery; totalClicks = s.totalClicks;
+            regenLevel = s.regenLevel; boughtTuning = s.boughtTuning; boughtLube = s.boughtLube; boughtInfinite = s.boughtInfinite; boughtCrystal = s.boughtCrystal; boughtMega = s.boughtMega;
+            autoClicker = s.autoClicker; critUpgrade = s.critUpgrade; currentPlanet = s.currentPlanet; earthBought = s.earthBought; moonUnlocked = s.moonUnlocked; marsUnlocked = s.marsUnlocked; sunUnlocked = s.sunUnlocked; starUnlocked = s.starUnlocked;
+            infiniteMode = s.infiniteMode; infiniteLeft = s.infiniteLeft; infiniteCooldown = s.infiniteCooldown; crystalPassive = s.crystalPassive;
+            boostCount = s.boostCount; boostActive = s.boostActive; boostEndTime = s.boostEndTime;
+            if(crystalPassive) startCrystalPassive(); if(autoClicker) startAutoClicker();
+            if(boostActive && boostEndTime > Date.now()) startBoostTimer();
+            else if(boostActive) boostActive = false;
+            updateRegenInfo(); updateUI();
+        } catch(e) {}
+    }
+
+    profileIcon.addEventListener('click', () => { updateProfileModal(); profileModal.classList.add('show'); });
+    closeModalBtn.addEventListener('click', () => profileModal.classList.remove('show'));
+    profileModal.addEventListener('click', (e) => { if(e.target === profileModal) profileModal.classList.remove('show'); });
+
+    cryBtn.addEventListener('click', () => clickCry(false));
+    buyBoostBtn.addEventListener('click', buyBoost);
+    document.getElementById('upgradeRegen1').onclick = () => upgradeRegen(1);
+    document.getElementById('upgradeRegen2').onclick = () => upgradeRegen(2);
+    document.getElementById('upgradeRegen3').onclick = () => upgradeRegen(3);
+    document.getElementById('resetBtn').onclick = fullReset;
+    
+    startRegen();
+    saveInterval = setInterval(saveGame, 5000);
+    window.addEventListener('beforeunload', () => saveGame());
+    loadGame();
+    updateUI();
+</script>
+</body>
+</html>

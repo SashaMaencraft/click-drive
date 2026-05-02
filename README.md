@@ -1,5 +1,7 @@
 # 🚀 КРИК-ДРАЙВ | Батарейный космический кликер  
 
+Сайт - https://sashamaencraft.github.io/click-drive/
+
 **Версия:** v1.5.0  
 **Автор:** [SashaMaencraft](https://github.com/SashaMaencraft)  
 **Статус:** ✅ Работает на ПК, телефонах и планшетах (адаптив)  
